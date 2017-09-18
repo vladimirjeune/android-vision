@@ -103,9 +103,6 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
         rect.bottom = translateY(rect.bottom);
         canvas.drawRect(rect, sRectPaint);
 
-        // Render the text at the bottom of the box
-        canvas.drawText(mText.getValue(), rect.left, rect.bottom, sTextPaint);
-
         // Break text into multiple lines then draw each one to its own bounding box
         List<? extends Text> textComponents = mText.getComponents();
 
