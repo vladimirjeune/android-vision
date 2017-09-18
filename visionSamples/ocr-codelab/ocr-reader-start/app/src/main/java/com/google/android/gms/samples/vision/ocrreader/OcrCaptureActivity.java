@@ -44,9 +44,11 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSource;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.CameraSourcePreview;
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
+import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * Activity for the Ocr Detecting app.  This app detects text and displays the value with the
@@ -110,6 +112,21 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                 .show();
 
         // TODO: Set up the Text To Speech engine.
+        TextToSpeech.OnInitListener listener =
+                new TextToSpeech.OnInitListener() {
+
+                    @Override
+                    public void onInit(int status) {
+                        if (status == TextToSpeech.SUCCESS) {
+                            Log.d("TTS", "TextToSpeech started successfully");
+                            tts.setLanguage(Locale.US);
+                        } else {
+                            Log.d("TTS", "Error starting the Text To Speech Engine");
+                        }
+                    }
+                };
+
+                tts = new TextToSpeech(this.getApplicationContext(), listener);
     }
 
     /**
@@ -323,7 +340,27 @@ public final class OcrCaptureActivity extends AppCompatActivity {
      */
     private boolean onTap(float rawX, float rawY) {
         // TODO: Speak the text when the user taps on screen.
-        return false;
+        OcrGraphic graphicAtLocation = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
+        TextBlock textBlock = null;
+
+        if (graphicAtLocation != null ) {
+
+            textBlock = graphicAtLocation.getTextBlock();
+            
+            if (textBlock != null && textBlock.getValue() != null ) {
+                Log.d(TAG, "Text data is being spoken: " + textBlock.getValue());
+                // Speak the string
+                tts.speak(textBlock.getValue(), TextToSpeech.QUEUE_ADD, null, "DEFAULT");
+
+            } else {
+                Log.d(TAG, "Text data is null");
+            }
+
+        } else {
+            Log.d(TAG, "No text detected");
+        }
+
+        return textBlock != null;
     }
 
     private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener {

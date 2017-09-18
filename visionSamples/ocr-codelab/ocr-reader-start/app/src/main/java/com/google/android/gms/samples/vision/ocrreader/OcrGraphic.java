@@ -82,7 +82,20 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
      */
     public boolean contains(float x, float y) {
         // TODO: Check if this graphic's text contains this point.
-        return false;
+
+        if (null == mText) {
+            return false;
+        }
+
+        // Take the bounding box we were given and return one matching incoming video
+        RectF rect = new RectF(mText.getBoundingBox());
+        rect.left = translateX(rect.left);
+        rect.right = translateX(rect.right);
+        rect.top = translateY(rect.top);
+        rect.bottom = translateY(rect.bottom);
+
+        return (rect.left < x && rect.right > x && rect.top < y && rect.bottom > y);
+
     }
 
     /**
