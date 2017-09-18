@@ -91,5 +91,29 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
     @Override
     public void draw(Canvas canvas) {
         // TODO: Draw the text onto the canvas.
+        if (null == mText) {
+            return;
+        }
+
+        // Draws the bounding box around the TextBlock
+        RectF rect = new RectF(mText.getBoundingBox());
+        rect.left = translateX(rect.left);
+        rect.right = translateX(rect.right);
+        rect.top = translateY(rect.top);
+        rect.bottom = translateY(rect.bottom);
+        canvas.drawRect(rect, sRectPaint);
+
+        // Render the text at the bottom of the box
+        canvas.drawText(mText.getValue(), rect.left, rect.bottom, sTextPaint);
+
+        // Break text into multiple lines then draw each one to its own bounding box
+        List<? extends Text> textComponents = mText.getComponents();
+
+        for (Text currText : textComponents) {
+            float left = translateX(currText.getBoundingBox().left);
+            float bottom = translateY(currText.getBoundingBox().bottom);
+            canvas.drawText(currText.getValue(), left, bottom, sTextPaint);
+        }
+
     }
 }
